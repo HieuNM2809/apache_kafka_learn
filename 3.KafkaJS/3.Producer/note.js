@@ -1,3 +1,5 @@
+//https://kafka.js.org/docs/producing
+
 const kafka           = require('./config/kafka.config');
 const {Message, CompressionTypes, IHeaders} = require("kafkajs");
 
