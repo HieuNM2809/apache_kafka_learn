@@ -29,7 +29,8 @@ services:
     networks:
       - kafka-network
     volumes:
-      - kafka-data:/bitnami/kafka
+      # - D:/Docker:/bitnami/kafka      # mount ra ngoài windows
+      - kafka-data:/bitnami/kafka   # mount vào volumes docker 
 
   kafka-ui:
     container_name: kafka-ui
