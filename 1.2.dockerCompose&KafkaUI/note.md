@@ -1,3 +1,5 @@
+Doc: https://docs.kafka-ui.provectus.io/
+
 Dưới đây là một số ví dụ về các lệnh tương tác với Kafka từ command line, bao gồm cả việc sử dụng `group-id`:
 
 **1. Tạo topic:**

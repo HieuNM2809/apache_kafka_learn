@@ -28,6 +28,8 @@ services:
       - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1 # Cấu hình cho transaction log
     networks:
       - kafka-network
+    volumes:
+      - kafka-data:/bitnami/kafka
 
   kafka-ui:
     container_name: kafka-ui
@@ -40,12 +42,19 @@ services:
       - KAFKA_CLUSTERS_0_NAME=local # Tên cụm Kafka
       - KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS=kafka:9092 # Kết nối tới Kafka
       - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181 # (Tùy chọn) Kết nối tới ZooKeeper nếu cần
+      # Authen
+      # - AUTH_ENABLED=true
+      # - AUTH_TYPE="LOGIN_FORM"
+      # - SPRING_SECURITY_USER_NAME=admin
+      # - SPRING_SECURITY_USER_PASSWORD=123456
     networks:
       - kafka-network
-      
+
 networks:
   kafka-network:
     driver: bridge
-
+volumes:
+  kafka-data:
+    external: false
 
   # Thêm các dịch vụ khác như Kafka Connect, Schema Registry nếu cần
