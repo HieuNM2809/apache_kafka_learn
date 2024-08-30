@@ -12,6 +12,7 @@ services:
       - ./:/another_folder:delegated
     networks:
       - default
+      - kafka-network
   nginx:
     image: nginx:alpine
     container_name: laravel-kafka-nginx
@@ -24,7 +25,66 @@ services:
       - app
     networks:
       - default
+      - kafka-network
+  zookeeper:
+      container_name: zookeeper
+      image: "bitnami/zookeeper:latest" # Image ZooKeeper đáng tin cậy
+      ports:
+          - "2181:2181" # Cổng ZooKeeper mặc định
+      environment:
+          - ALLOW_ANONYMOUS_LOGIN=yes # Cho phép kết nối không cần xác thực (chỉ trong môi trường phát triển)
+      networks:
+          - kafka-network
+
+  kafka:
+      container_name: kafka
+      image: "bitnami/kafka:latest" # Image Kafka đáng tin cậy
+      depends_on:
+          - zookeeper
+      ports:
+          - "9092:9092" # Cổng Kafka mặc định
+          - "9093:9093"
+      environment:
+          - KAFKA_BROKER_ID=1 # ID của broker Kafka
+          - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 # Kết nối tới ZooKeeper
+          - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+          - KAFKA_LISTENERS=INTERNAL://:9092,EXTERNAL://:9093
+          - KAFKA_ADVERTISED_LISTENERS=INTERNAL://kafka:9092,EXTERNAL://localhost:9093 # Địa chỉ lắng nghe
+          - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+
+          - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 # Hệ số sao chép cho topic offsets
+          - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1 # Cấu hình cho transaction log
+          - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1 # Cấu hình cho transaction log
+      networks:
+          - kafka-network
+      volumes:
+          # - D:/Docker:/bitnami/kafka      # mount ra ngoài windows
+          - kafka-data:/bitnami/kafka   # mount vào volumes docker
+
+  kafka-ui:
+      container_name: kafka-ui
+      image: "provectuslabs/kafka-ui:latest" # Image Kafka UI mới nhất
+      ports:
+          - "8080:8080" # Cổng Kafka UI mặc định
+      depends_on:
+          - kafka
+      environment:
+          - KAFKA_CLUSTERS_0_NAME=local # Tên cụm Kafka
+          - KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS=kafka:9092 # Kết nối tới Kafka
+          - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181 # (Tùy chọn) Kết nối tới ZooKeeper nếu cần
+          # Authen
+          # - AUTH_ENABLED=true
+          # - AUTH_TYPE="LOGIN_FORM"
+          # - SPRING_SECURITY_USER_NAME=admin
+          # - SPRING_SECURITY_USER_PASSWORD=123456
+      networks:
+          - kafka-network
 
 networks:
   default:
     driver: bridge
+  kafka-network:
+    driver: bridge
+volumes:
+  kafka-data:
+    external: false

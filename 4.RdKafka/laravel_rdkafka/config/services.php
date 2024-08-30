@@ -34,5 +34,17 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'kafka_config' => [
+        'inside_kafka_broker' => env('INSIDE_KAFKA_BROKER', true),
+        'auto_commit' => env('AUTO_COMMIT', true),
+        'offset_reset' => env('OFFSET_RESET', 'latest'),
+        'partition_eof' => env('PARTITION_EOF', true),
+        'topic' => [
+            'order_stock_revoked' => env('KAFKA_TOPIC_ORDER_STOCK_REVOKED', ''),
+        ],
+        'consumer' => [
+            'staff_consumer' => env('KAFKA_CONSUMER_INSIDE_STAFF', ''),
+        ],
+    ],
 
 ];
