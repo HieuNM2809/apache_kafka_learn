@@ -1,0 +1,30 @@
+version: '3.4'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: .docker/php/Dockerfile
+    container_name: laravel-kafka-app
+    volumes:
+      - ./:/var/www/html
+      - ./:/app:delegated
+      - ./:/another_folder:delegated
+    networks:
+      - default
+  nginx:
+    image: nginx:alpine
+    container_name: laravel-kafka-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www/html
+      - .docker/nginx/conf.d/:/etc/nginx/conf.d
+    depends_on:
+      - app
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
